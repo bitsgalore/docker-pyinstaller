@@ -1,21 +1,24 @@
-FROM ubuntu:26.04
+FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 ARG WINE_VERSION=winehq-staging
-ARG PYTHON_VERSION=3.12.14
+ARG PYTHON_VERSION=3.12.10
 ARG PYINSTALLER_VERSION=6.22
 
 # we need wine for this all to work, so we'll use the PPA
 RUN set -x \
     && dpkg --add-architecture i386 \
-    && apt-get update -qy \
-    && apt-get install --no-install-recommends -qfy apt-transport-https software-properties-common wget gpg-agent rename \
-    && wget -nv https://dl.winehq.org/wine-builds/winehq.key \
-    && apt-key add winehq.key \
-    && add-apt-repository 'https://dl.winehq.org/wine-builds/ubuntu/' \
-    && apt-get update -qy \
-    && apt-get install --no-install-recommends -qfy $WINE_VERSION winbind cabextract \
+    && mkdir -pm755 /etc/apt/keyrings \
+    && apt update -qy \
+    && apt install wget -y \
+    && apt install gnupg -y \
+    && apt install unzip -y \
+    && apt install cabextract -y \
+    && wget -O - https://dl.winehq.org/wine-builds/winehq.key | gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key - \
+    && wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/noble/winehq-noble.sources \
+    && apt update -qy \
+    && apt install --install-recommends winehq-stable -qfy \
     && apt-get clean \
     && wget -nv https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks \
     && chmod +x winetricks \
@@ -35,11 +38,10 @@ ENV PYPI_INDEX_URL=https://pypi.python.org/simple
 # the files directly, since installing isn't running correctly.
 RUN set -x \
     && winetricks win7 \
-    && for msifile in `echo core dev exe lib path pip tcltk tools`; do \
-        wget -nv "https://www.python.org/ftp/python/$PYTHON_VERSION/amd64/${msifile}.msi"; \
-        wine msiexec /i "${msifile}.msi" /qb TARGETDIR=C:/Python312; \
-        rm ${msifile}.msi; \
-    done \
+    && wget "https://www.nuget.org/api/v2/package/python/$PYTHON_VERSION" \
+    && unzip $PYTHON_VERSION "tools/*" -d /wine/drive_c \
+    && mv /wine/drive_c/tools /wine/drive_c/Python312 \
+    && rm $PYTHON_VERSION \
     && cd /wine/drive_c/Python312 \
     && echo 'wine '\''C:\Python312\python.exe'\'' "$@"' > /usr/bin/python \
     && echo 'wine '\''C:\Python312\Scripts\easy_install.exe'\'' "$@"' > /usr/bin/easy_install \
@@ -56,13 +58,13 @@ RUN set -x \
 ENV W_DRIVE_C=/wine/drive_c
 ENV W_WINDIR_UNIX="$W_DRIVE_C/windows"
 ENV W_SYSTEM64_DLLS="$W_WINDIR_UNIX/system32"
-ENV W_TMP="$W_DRIVE_C/windows/temp/_$0"
+ENV W_TMP="$W_DRIVE_C/windows/temp/_win7"
 
-# install Microsoft Visual C++ Redistributable for Visual Studio 2017 dll files
+# install Microsoft Visual C++ Redistributable for Visual Studio 2026 dll files (does this work with WINE?)
 RUN set -x \
     && rm -f "$W_TMP"/* \
-    && wget -P "$W_TMP" https://download.visualstudio.microsoft.com/download/pr/11100230/15ccb3f02745c7b206ad10373cbca89b/VC_redist.x64.exe \
-    && cabextract -q --directory="$W_TMP" "$W_TMP"/VC_redist.x64.exe \
+    && wget -P "$W_TMP" https://aka.ms/vc14/vc_redist.x64.exe \
+    && cabextract -q --directory="$W_TMP" "$W_TMP"/vc_redist.x64.exe \
     && cabextract -q --directory="$W_TMP" "$W_TMP/a10" \
     && cabextract -q --directory="$W_TMP" "$W_TMP/a11" \
     && cd "$W_TMP" \
