@@ -1,6 +1,6 @@
 FROM ubuntu:16.04
 
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 ARG WINE_VERSION=winehq-staging
 ARG PYTHON_VERSION=3.7.5
@@ -22,9 +22,9 @@ RUN set -x \
     && mv winetricks /usr/local/bin
 
 # wine settings
-ENV WINEARCH win64
-ENV WINEDEBUG fixme-all
-ENV WINEPREFIX /wine
+ENV WINEARCH=win64
+ENV WINEDEBUG=fixme-all
+ENV WINEPREFIX=/wine
 
 # PYPI repository location
 ENV PYPI_URL=https://pypi.python.org/
