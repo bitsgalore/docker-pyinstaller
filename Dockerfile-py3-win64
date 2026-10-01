@@ -45,7 +45,7 @@ RUN set -x \
     && cd /wine/drive_c/Python312 \
     && echo 'wine '\''C:\Python312\python.exe'\'' "$@"' > /usr/bin/python \
     && echo 'wine '\''C:\Python312\Scripts\easy_install.exe'\'' "$@"' > /usr/bin/easy_install \
-    && echo 'wine '\''C:\Python312\Scripts\pyinstaller.exe'\'' "$@"' > /usr/bin/pyinstaller \
+ls    && echo 'wine '\''C:\Python312\Scripts\pyinstaller.exe'\'' "$@"' > /usr/bin/pyinstaller \
     && echo 'wine '\''C:\Python312\Scripts\pyupdater.exe'\'' "$@"' > /usr/bin/pyupdater \
     && echo 'assoc .py=PythonScript' | wine cmd \
     && echo 'ftype PythonScript=c:\Python312\python.exe "%1" %*' | wine cmd \
@@ -59,16 +59,16 @@ ENV W_WINDIR_UNIX="$W_DRIVE_C/windows"
 ENV W_SYSTEM64_DLLS="$W_WINDIR_UNIX/system32"
 ENV W_TMP="$W_DRIVE_C/windows/temp/_win7"
 
-# install Microsoft Visual C++ Redistributable for Visual Studio 2026 dll files (does this work with WINE?)
-#RUN set -x \
-#    && rm -f "$W_TMP"/* \
-#    && wget -P "$W_TMP" https://aka.ms/vc14/vc_redist.x64.exe \
-#    && cabextract -q --directory="$W_TMP" "$W_TMP"/vc_redist.x64.exe \
-#    && cabextract -q --directory="$W_TMP" "$W_TMP/a10" \
-#    && cabextract -q --directory="$W_TMP" "$W_TMP/a11" \
-#    && cd "$W_TMP" \
-#    && rename 's/_/\-/g' *.dll \
-#    && cp "$W_TMP"/*.dll "$W_SYSTEM64_DLLS"/
+# install Microsoft Visual C++ Redistributable for Visual Studio 2017 dll files
+RUN set -x \
+    && rm -f "$W_TMP"/* \
+    && wget -P "$W_TMP" https://download.visualstudio.microsoft.com/download/pr/11100230/15ccb3f02745c7b206ad10373cbca89b/VC_redist.x64.exe \
+    && cabextract -q --directory="$W_TMP" "$W_TMP"/VC_redist.x64.exe \
+    && cabextract -q --directory="$W_TMP" "$W_TMP/a10" \
+    && cabextract -q --directory="$W_TMP" "$W_TMP/a11" \
+    && cd "$W_TMP" \
+    && rename 's/_/\-/g' *.dll \
+    && cp "$W_TMP"/*.dll "$W_SYSTEM64_DLLS"/
 
 # install pyinstaller
 RUN /usr/bin/python -m pip install pyinstaller==$PYINSTALLER_VERSION
