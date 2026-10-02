@@ -45,7 +45,8 @@ RUN set -x \
     && cd /wine/drive_c/Python312 \
     && echo 'wine '\''C:\Python312\python.exe'\'' "$@"' > /usr/bin/python \
     && echo 'wine '\''C:\Python312\Scripts\easy_install.exe'\'' "$@"' > /usr/bin/easy_install \
-ls    && echo 'wine '\''C:\Python312\Scripts\pyinstaller.exe'\'' "$@"' > /usr/bin/pyinstaller \
+    && echo 'wine '\''C:\Python312\python.exe -m pip'\'' "$@"' > /usr/bin/pip \
+    && echo 'wine '\''C:\Python312\Scripts\pyinstaller.exe'\'' "$@"' > /usr/bin/pyinstaller \
     && echo 'wine '\''C:\Python312\Scripts\pyupdater.exe'\'' "$@"' > /usr/bin/pyupdater \
     && echo 'assoc .py=PythonScript' | wine cmd \
     && echo 'ftype PythonScript=c:\Python312\python.exe "%1" %*' | wine cmd \
