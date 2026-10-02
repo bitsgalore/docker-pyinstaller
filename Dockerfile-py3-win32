@@ -26,9 +26,9 @@ RUN set -x \
     && mv winetricks /usr/local/bin
 
 # wine settings
-ENV WINEARCH win32
-ENV WINEDEBUG fixme-all
-ENV WINEPREFIX /wine
+ENV WINEARCH=win32
+ENV WINEDEBUG=fixme-all
+ENV WINEPREFIX=/wine
 
 # PYPI repository location
 ENV PYPI_URL=https://pypi.python.org/
