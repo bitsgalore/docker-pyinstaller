@@ -15,6 +15,7 @@ RUN set -x \
     && apt install gnupg -y \
     && apt install unzip -y \
     && apt install cabextract -y \
+    && apt install rename \
     && wget -O - https://dl.winehq.org/wine-builds/winehq.key | gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key - \
     && wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/noble/winehq-noble.sources \
     && apt update -qy \
